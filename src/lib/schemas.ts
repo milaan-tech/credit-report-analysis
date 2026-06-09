@@ -63,3 +63,17 @@ export const AnalysisResultSchema = z.object({
 });
 
 export type ValidatedAnalysisResult = z.infer<typeof AnalysisResultSchema>;
+
+export const RequestBodySchema = z.object({
+  pdfText: z.string().min(1, 'PDF text is required'),
+  userInfo: z.object({
+    first: z.string().min(1, 'First name is required'),
+    last: z.string().min(1, 'Last name is required'),
+    dob: z.string(),
+    ssn: z.string(),
+    address: z.string(),
+    city: z.string(),
+    state: z.string(),
+    zip: z.string(),
+  }),
+});

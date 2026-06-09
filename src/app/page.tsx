@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation';
 import { Brand } from '@/components/ui/Brand';
 import { Icon } from '@/components/ui/Icon';
 import { PersonalInfoForm } from '@/components/upload/PersonalInfoForm';
-import { ApiKeyInput } from '@/components/upload/ApiKeyInput';
 import { UploadArea } from '@/components/upload/UploadArea';
 import { useAnalysis } from '@/context/AnalysisContext';
 import { extractTextFromPDF } from '@/lib/pdf';
@@ -21,7 +20,6 @@ export default function UploadPage() {
   const { setResult } = useAnalysis();
 
   const [form, setForm] = useState<UserInfo>(EMPTY_FORM);
-  const [apiKey, setApiKey] = useState('');
   const [file, setFile] = useState<File | null>(null);
   const [fileErr, setFileErr] = useState('');
   const [loading, setLoading] = useState(false);
@@ -32,7 +30,7 @@ export default function UploadPage() {
     setForm((prev) => ({ ...prev, [key]: value }));
   };
 
-  const isValid = form.first && form.last && apiKey && file;
+  const isValid = form.first && form.last && file;
 
   const analyze = async () => {
     setTouched(true);
@@ -50,7 +48,7 @@ export default function UploadPage() {
       const res = await fetch('/api/analyze', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ pdfText, userInfo: form, apiKey }),
+        body: JSON.stringify({ pdfText, userInfo: form }),
       });
 
       const data = await res.json();
@@ -63,7 +61,7 @@ export default function UploadPage() {
       setResult(data.result, form);
       router.push('/results');
     } catch {
-      setError('Something went wrong. Please check your API key and try again.');
+      setError('Something went wrong. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -88,7 +86,7 @@ export default function UploadPage() {
                 Upload Your Credit Report
               </h1>
               <p style={{ margin: '12px 0 0', color: 'var(--ink-2)', fontSize: 15.5, lineHeight: 1.6, maxWidth: 560 }}>
-                Enter your information, add your OpenAI API key, and upload your credit report PDF.
+                Enter your information and upload your credit report PDF.
                 We&rsquo;ll analyze it and give you a detailed summary, action plan, and dispute letters.
               </p>
             </div>
@@ -106,20 +104,23 @@ export default function UploadPage() {
           {/* Form sections */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
             <PersonalInfoForm form={form} onChange={handleFormChange} touched={touched} />
-            <ApiKeyInput value={apiKey} onChange={setApiKey} touched={touched} />
 
-            {/* Section 3: Upload */}
+            {/* Section 2: Upload */}
             <section className="card" style={{ padding: 'clamp(18px,2.4vw,28px)' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 11, marginBottom: 4 }}>
                 <span style={{ color: 'var(--blue)', display: 'grid', placeItems: 'center' }}>
                   <Icon name="file" size={22} stroke={2} />
                 </span>
                 <h2 style={{ margin: 0, fontSize: 17, fontWeight: 700, color: 'var(--ink)', whiteSpace: 'nowrap' }}>
-                  3. Upload Credit Report
+                  2. Upload Credit Report
                 </h2>
               </div>
               <p style={{ margin: '6px 0 16px', color: 'var(--ink-3)', fontSize: 13.5 }}>
-                Upload your credit report PDF file. Make sure the file is clear and complete.
+                Upload your credit report PDF. Get a free annual report at{' '}
+                <a href="https://www.annualcreditreport.com" target="_blank" rel="noopener noreferrer"
+                  style={{ color: 'var(--blue)', fontWeight: 600, textDecoration: 'none' }}>
+                  AnnualCreditReport.com
+                </a>.
               </p>
               <UploadArea file={file} setFile={setFile} error={fileErr} setError={setFileErr} />
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, marginTop: 14, flexWrap: 'wrap' }}>
@@ -145,7 +146,7 @@ export default function UploadPage() {
 
           {touched && !isValid && !loading && (
             <div style={{ textAlign: 'center', color: 'var(--red)', fontSize: 13, marginTop: 10, fontWeight: 600 }}>
-              Please complete your name, API key, and upload a report to continue.
+              Please complete your name and upload a credit report to continue.
             </div>
           )}
 

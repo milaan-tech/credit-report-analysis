@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "postinstall": "node -e \"const fs=require('fs'),path=require('path');const src=require.resolve('pdfjs-dist/build/pdf.worker.min.mjs');const dest=path.join(__dirname,'public','pdf.worker.min.mjs');fs.mkdirSync(path.dirname(dest),{recursive:true});fs.copyFileSync(src,dest);\""
   },
   "dependencies": {
     "next": "14.2.5",

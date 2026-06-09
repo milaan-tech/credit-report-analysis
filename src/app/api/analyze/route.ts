@@ -2,25 +2,30 @@ import { NextRequest, NextResponse } from 'next/server';
 import { ZodError } from 'zod';
 import OpenAI from 'openai';
 import { analyzeReport } from '@/lib/openai';
-import type { UserInfo } from '@/types';
+import { RequestBodySchema } from '@/lib/schemas';
 
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json();
-    const { pdfText, userInfo, apiKey } = body as {
-      pdfText: string;
-      userInfo: UserInfo;
-      apiKey: string;
-    };
-
-    if (!pdfText || !userInfo || !apiKey) {
+    const raw: unknown = await req.json();
+    const parseResult = RequestBodySchema.safeParse(raw);
+    if (!parseResult.success) {
       return NextResponse.json(
-        { success: false, error: 'Missing required fields: pdfText, userInfo, apiKey.' },
+        { success: false, error: 'Invalid request: ' + (parseResult.error.issues[0]?.message ?? 'missing fields') },
         { status: 400 }
       );
     }
+    const { pdfText, userInfo } = parseResult.data;
 
-    const validated = await analyzeReport(pdfText, userInfo, apiKey);
+    // ~30k tokens of text; leaves room for system prompt + full response
+    const MAX_PDF_CHARS = 120_000;
+    if (pdfText.length > MAX_PDF_CHARS) {
+      return NextResponse.json(
+        { success: false, error: 'Your credit report is too large to process. Try a shorter export or remove non-essential pages.' },
+        { status: 422 }
+      );
+    }
+
+    const validated = await analyzeReport(pdfText, userInfo);
     const result = { ...validated, completedAt: new Date().toISOString() };
     return NextResponse.json({ success: true, result });
 
@@ -33,8 +38,13 @@ export async function POST(req: NextRequest) {
         );
       }
       if (err.status === 429) {
+        const hdrs = err.headers as Record<string, string> | undefined;
+        const retryAfter = hdrs?.['retry-after'] ?? hdrs?.['x-ratelimit-reset-requests'];
+        const waitMsg = retryAfter
+          ? `Please wait ${retryAfter} before trying again.`
+          : 'Please wait at least 60 seconds before trying again.';
         return NextResponse.json(
-          { success: false, error: 'Too many requests to the AI service. Please wait a moment and try again.' },
+          { success: false, error: `OpenAI rate limit reached. ${waitMsg} If this keeps happening, check your usage at platform.openai.com/usage.` },
           { status: 429 }
         );
       }

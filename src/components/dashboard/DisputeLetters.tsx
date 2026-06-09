@@ -4,6 +4,8 @@ import { useState } from 'react';
 import { Icon } from '@/components/ui/Icon';
 import { BureauMark } from '@/components/ui/BureauMark';
 import { BUREAUS } from '@/lib/bureaus';
+import { buildLetter } from '@/lib/letters';
+import { useAnalysis } from '@/context/AnalysisContext';
 import type { AnalysisResult } from '@/types';
 
 interface LetterModalProps {
@@ -94,9 +96,18 @@ interface DisputeLettersProps {
 
 export function DisputeLetters({ letters }: DisputeLettersProps) {
   const [openKey, setOpenKey] = useState<string | null>(null);
+  const { result, userInfo } = useAnalysis();
 
-  const letterMap = Object.fromEntries(letters.map((l) => [l.bureau.toLowerCase(), l.body]));
-  const activeBody = openKey ? (letterMap[openKey] ?? null) : null;
+  const getLetterBody = (bureauKey: string): string => {
+    const aiLetter = letters.find((l) => l.bureau.toLowerCase() === bureauKey)?.body;
+    if (aiLetter) return aiLetter;
+    // Fallback: build from template if AI omitted this bureau's letter
+    const bureau = BUREAUS.find((b) => b.key === bureauKey);
+    if (bureau && result && userInfo) return buildLetter(bureau, result, userInfo);
+    return '';
+  };
+
+  const activeBody = openKey ? getLetterBody(openKey) : null;
 
   return (
     <>

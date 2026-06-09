@@ -1,6 +1,5 @@
 // Server-side only — called exclusively from /api/analyze route.
-// Creates a per-request OpenAI client using the user-supplied API key.
-// The key is never stored, logged, or returned.
+// Uses OPENAI_API_KEY from server env. Never exposed to the client.
 
 import OpenAI from 'openai';
 import { AnalysisResultSchema, type ValidatedAnalysisResult } from './schemas';
@@ -113,15 +112,22 @@ const ANALYSIS_JSON_SCHEMA = {
   },
 };
 
+// Strips newlines and excess whitespace from user-supplied fields before
+// injecting them into the prompt, preventing newline-based prompt injection.
+function sanitizeField(value: string): string {
+  return value.replace(/[\r\n]+/g, ' ').replace(/\s{2,}/g, ' ').trim().slice(0, 200);
+}
+
 export async function analyzeReport(
   pdfText: string,
   userInfo: UserInfo,
-  apiKey: string,
 ): Promise<ValidatedAnalysisResult> {
+  const apiKey = process.env.OPENAI_API_KEY;
+  if (!apiKey) throw new Error('OpenAI API key is not configured on the server.');
   const client = new OpenAI({ apiKey });
 
-  const fullName = `${userInfo.first} ${userInfo.last}`;
-  const fullAddress = `${userInfo.address}\n${userInfo.city}, ${userInfo.state} ${userInfo.zip}`;
+  const fullName = sanitizeField(`${userInfo.first} ${userInfo.last}`);
+  const fullAddress = sanitizeField(`${userInfo.address}, ${userInfo.city}, ${userInfo.state} ${userInfo.zip}`);
 
   const response = await client.chat.completions.create({
     model: 'gpt-4o',
@@ -189,8 +195,8 @@ function buildUserPrompt(
 SUBJECT (for dispute letters):
 Name: ${fullName}
 Address: ${fullAddress}
-Date of Birth: ${dob}
-SSN: ${ssn}
+Date of Birth: ${sanitizeField(dob)}
+SSN: ${sanitizeField(ssn)}
 
 --- CREDIT REPORT START ---
 ${pdfText}
