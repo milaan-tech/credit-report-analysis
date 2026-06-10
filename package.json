@@ -10,19 +10,21 @@
     "postinstall": "node -e \"const fs=require('fs'),path=require('path');const src=require.resolve('pdfjs-dist/build/pdf.worker.min.mjs');const dest=path.join(__dirname,'public','pdf.worker.min.mjs');fs.mkdirSync(path.dirname(dest),{recursive:true});fs.copyFileSync(src,dest);\""
   },
   "dependencies": {
+    "@supabase/ssr": "^0.12.0",
+    "@supabase/supabase-js": "^2.108.1",
     "next": "14.2.5",
+    "openai": "^4.52.0",
+    "pdfjs-dist": "^4.4.168",
     "react": "^18",
     "react-dom": "^18",
-    "openai": "^4.52.0",
-    "zod": "^3.23.8",
-    "pdfjs-dist": "^4.4.168"
+    "zod": "^3.23.8"
   },
   "devDependencies": {
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
-    "typescript": "^5",
     "eslint": "^8",
-    "eslint-config-next": "14.2.5"
+    "eslint-config-next": "14.2.5",
+    "typescript": "^5"
   }
 }

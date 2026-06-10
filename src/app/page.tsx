@@ -8,6 +8,7 @@ import { PersonalInfoForm } from '@/components/upload/PersonalInfoForm';
 import { UploadArea } from '@/components/upload/UploadArea';
 import { useAnalysis } from '@/context/AnalysisContext';
 import { extractTextFromPDF } from '@/lib/pdf';
+import { SignOutButton } from '@/components/ui/SignOutButton';
 import type { UserInfo } from '@/types';
 
 const EMPTY_FORM: UserInfo = {
@@ -72,9 +73,12 @@ export default function UploadPage() {
       <div className="shell">
         <header className="topbar">
           <Brand />
-          <div className="topbar-note">
-            <span className="lk"><Icon name="lock" size={14} /></span>
-            <span>Your data is never stored.<br />Everything is processed securely in real-time.</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+            <div className="topbar-note">
+              <span className="lk"><Icon name="lock" size={14} /></span>
+              <span>Your data is never stored.<br />Everything is processed securely in real-time.</span>
+            </div>
+            <SignOutButton />
           </div>
         </header>
 

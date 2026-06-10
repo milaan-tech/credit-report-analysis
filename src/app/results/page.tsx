@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Brand } from '@/components/ui/Brand';
 import { Icon } from '@/components/ui/Icon';
+import { SignOutButton } from '@/components/ui/SignOutButton';
 import { useAnalysis } from '@/context/AnalysisContext';
 import { CreditOverview } from '@/components/dashboard/CreditOverview';
 import { StrengthsWeaknesses } from '@/components/dashboard/StrengthsWeaknesses';
@@ -32,9 +33,12 @@ export default function ResultsPage() {
       <div className="shell">
         <header className="topbar">
           <Brand />
-          <button className="btn btn-ghost" style={{ fontSize: 14 }} onClick={() => router.push('/')}>
-            <Icon name="refresh" size={15} /> New Analysis
-          </button>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <button className="btn btn-ghost" style={{ fontSize: 14 }} onClick={() => router.push('/')}>
+              <Icon name="refresh" size={15} /> New Analysis
+            </button>
+            <SignOutButton />
+          </div>
         </header>
 
         <div style={{ padding: 'clamp(22px,3vw,36px) clamp(18px,3vw,38px) 44px' }}>
