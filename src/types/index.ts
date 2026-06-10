@@ -31,6 +31,8 @@ export interface NegativeItem {
   impactPoints: string;
   laws: string[];
   recommendedAction: string;
+  /** Which bureaus actually report this item — only the ones present in the report */
+  bureaus: string[];
 }
 
 export interface ActionItem {

@@ -50,7 +50,7 @@ const ANALYSIS_JSON_SCHEMA = {
         required: [
           'priority', 'creditor', 'accountNumber', 'type', 'balance',
           'status', 'dateReported', 'reasons', 'impact', 'impactPoints',
-          'laws', 'recommendedAction',
+          'laws', 'recommendedAction', 'bureaus',
         ],
         properties: {
           priority: { type: 'string', enum: ['High', 'Medium', 'Low'] },
@@ -65,6 +65,7 @@ const ANALYSIS_JSON_SCHEMA = {
           impactPoints: { type: 'string' },
           laws: { type: 'array', items: { type: 'string' } },
           recommendedAction: { type: 'string' },
+          bureaus: { type: 'array', items: { type: 'string' } },
         },
       },
     },
@@ -122,7 +123,7 @@ export async function analyzeReport(
   pdfText: string,
   userInfo: UserInfo,
 ): Promise<ValidatedAnalysisResult> {
-  const apiKey = process.env.OPENAI_API_KEY;
+  const apiKey = process.env.APP_OPENAI_KEY;
   if (!apiKey) throw new Error('OpenAI API key is not configured on the server.');
   const client = new OpenAI({ apiKey });
 
@@ -173,7 +174,7 @@ overall.health: A holistic integer 0–100 reflecting credit health. Weight paym
 
 overall.rating: Reflect the overall credit health using the same rating scale.
 
-negativeItems[]: List every collection, charge-off, late payment (30/60/90+ days), judgment, lien, tax lien, repossession, or bankruptcy. Be exhaustive — do not omit any. Set impactPoints as a string like "-30–50 pts".
+negativeItems[]: List every collection, charge-off, late payment (30/60/90+ days), judgment, lien, tax lien, repossession, or bankruptcy. Be exhaustive — do not omit any. Set impactPoints as a string like "-30–50 pts". For each item, set bureaus[] to only the bureau keys ("experian", "equifax", "transunion") where that specific account actually appears in the report — do not default to all three; if an item only shows on one bureau, list only that one.
 
 stats: Count directly from the report. utilization is e.g. "34%". estimatedImprovement is a realistic point-gain range if disputes succeed, e.g. "40–80".
 

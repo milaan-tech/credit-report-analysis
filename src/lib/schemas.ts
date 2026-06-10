@@ -26,6 +26,7 @@ const NegativeItemSchema = z.object({
   impactPoints: z.string(),
   laws: z.array(z.string()),
   recommendedAction: z.string(),
+  bureaus: z.array(z.string()),
 });
 
 const ActionItemSchema = z.object({
