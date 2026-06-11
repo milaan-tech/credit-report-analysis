@@ -64,20 +64,9 @@ export default function ResultsPage() {
             </div>
           </div>
 
-          <CreditOverview scores={result.scores} overall={result.overall} />
-          <StrengthsWeaknesses strengths={result.strengths} weaknesses={result.weaknesses} />
-          <NegativeItems items={result.negativeItems} />
-
-          <div style={{ display: 'grid', gridTemplateColumns: '1.3fr 1fr', gap: 16, marginBottom: 16 }} className="ap-grid">
-            <ActionPlan items={result.actionPlan} />
-            <SummaryCard summary={result.summary} stats={result.stats} />
-          </div>
-
-          <DisputeLetters />
-
           {!isSignedIn && (
             <div style={{
-              marginTop: 24,
+              marginBottom: 24,
               border: '1px solid #d9e4ff',
               borderRadius: 16,
               background: 'linear-gradient(135deg, #f0f5ff 0%, #f8faff 100%)',
@@ -118,6 +107,17 @@ export default function ResultsPage() {
               </div>
             </div>
           )}
+
+          <CreditOverview scores={result.scores} overall={result.overall} />
+          <StrengthsWeaknesses strengths={result.strengths} weaknesses={result.weaknesses} />
+          <NegativeItems items={result.negativeItems} />
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1.3fr 1fr', gap: 16, marginBottom: 16 }} className="ap-grid">
+            <ActionPlan items={result.actionPlan} />
+            <SummaryCard summary={result.summary} stats={result.stats} />
+          </div>
+
+          <DisputeLetters />
 
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: 28, color: 'var(--muted)', fontSize: 12.8 }}>
             <Icon name="lock" size={14} /> Your data is never stored. Everything is processed in real-time and discarded after your session.
